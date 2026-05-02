@@ -6,7 +6,7 @@ export default function Footer() {
       <span className="footer-left">Agora &middot; Built May 2, 2026</span>
       <a
         className="footer-right"
-        href="https://github.com"
+        href="https://github.com/agentjakey/agora"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="View source on GitHub"
