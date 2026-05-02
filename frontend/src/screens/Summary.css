@@ -1,11 +1,11 @@
 .summary-screen {
   justify-content: flex-start;
   padding-top: 60px;
-  padding-bottom: 60px;
+  padding-bottom: 80px;
 }
 
 .summary-inner {
-  max-width: 640px;
+  max-width: 680px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -16,98 +16,91 @@
   font-size: clamp(22px, 5vw, 36px);
   color: var(--text-primary);
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
-.summary-stats {
-  display: flex;
-  gap: 32px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 4px 0;
-}
-
-.summary-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.stat-number {
-  font-family: 'Cinzel', serif;
-  font-size: 42px;
-  color: var(--accent);
-  font-weight: 600;
-  line-height: 1;
-}
-
-.stat-label {
+.summary-sub {
+  margin-top: 10px;
   font-family: 'Crimson Text', serif;
-  font-size: 15px;
-  color: var(--text-secondary);
+  font-size: 18px;
   font-style: italic;
+  text-align: center;
 }
 
-.summary-history {
+/* Chronicle */
+.summary-chronicle {
   width: 100%;
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
-.summary-history-label {
+.summary-section-title {
   font-family: 'Cinzel', serif;
   font-size: 11px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  color: var(--text-secondary);
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 20px;
 }
 
-.summary-question {
-  border: 1px solid var(--border);
-  padding: 16px 20px;
+.chronicle-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  width: 100%;
+}
+
+.chronicle-entry {
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   border-radius: 1px;
 }
 
-.summary-q-options {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 15px;
+.chronicle-framing {
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
-.sq-a { color: var(--option-a-text); }
-.sq-b { color: var(--option-b-text); }
-.sq-vs { font-style: italic; font-size: 13px; padding-left: 4px; }
+.chronicle-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-.sq-split {
+.chr-opt {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.chr-opt-a { color: var(--option-a-text); }
+.chr-opt-b { color: var(--option-b-text); }
+
+.chronicle-split {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 2px;
 }
 
-.sq-pct-a {
+.chr-pct {
   font-family: 'Cinzel', serif;
-  font-size: 13px;
+  font-size: 12px;
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.chr-pct-a {
   color: var(--option-a-text);
-  width: 36px;
   text-align: right;
-  flex-shrink: 0;
 }
 
-.sq-pct-b {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
+.chr-pct-b {
   color: var(--option-b-text);
-  width: 36px;
-  flex-shrink: 0;
 }
 
 .sq-bar {
@@ -130,21 +123,67 @@
   flex: 1;
 }
 
-.summary-quote {
-  font-family: 'Crimson Text', serif;
-  font-style: italic;
-  font-size: 17px;
-  color: var(--text-secondary);
-  text-align: center;
-  max-width: 480px;
-  line-height: 1.7;
-  margin-top: 8px;
+.chr-verdict {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: 1px;
+  flex-shrink: 0;
 }
 
+.chr-verdict.aligned {
+  color: var(--option-a-text);
+  border-color: var(--option-a-text);
+  opacity: 0.7;
+}
+
+.chr-verdict.divided {
+  color: var(--option-b-text);
+  border-color: var(--option-b-text);
+  opacity: 0.7;
+}
+
+/* Philosophical Profile */
+.summary-profile {
+  width: 100%;
+  text-align: center;
+}
+
+.profile-line {
+  font-family: 'Crimson Text', serif;
+  font-size: 17px;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.profile-tags {
+  color: var(--accent);
+  font-style: normal;
+}
+
+/* Actions */
 .summary-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .summary-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .summary-actions button {
+    text-align: center;
+  }
+
+  .chronicle-split {
+    flex-wrap: wrap;
+  }
 }

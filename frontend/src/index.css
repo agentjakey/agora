@@ -83,6 +83,11 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 button.primary {
   border-color: var(--accent);
   color: var(--accent);
@@ -109,6 +114,11 @@ input[type="text"] {
 
 input[type="text"]:focus {
   border-color: var(--accent);
+}
+
+input[type="text"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 input[type="text"]::placeholder {
@@ -148,4 +158,11 @@ input[type="text"]::placeholder {
   font-size: 15px;
   margin-top: 8px;
   font-style: italic;
+}
+
+/* Mobile: generous padding on all screens */
+@media (max-width: 768px) {
+  .screen {
+    padding: 32px 16px;
+  }
 }

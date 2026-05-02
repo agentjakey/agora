@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRoom } from '../context/RoomContext.jsx'
+import NameModal from '../components/NameModal.jsx'
 import './FlavorSelect.css'
 
 const FLAVORS = [
@@ -18,6 +19,7 @@ export default function FlavorSelect() {
   const [selected, setSelected] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showModal, setShowModal] = useState(!userName)
 
   function toggle(id) {
     setSelected(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
@@ -30,10 +32,7 @@ export default function FlavorSelect() {
       const res = await fetch('/room/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          host_name: userName || 'Host',
-          flavors: selected,
-        }),
+        body: JSON.stringify({ host_name: userName || 'Host', flavors: selected }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.detail || 'Could not create room.'); setLoading(false); return }
@@ -56,6 +55,8 @@ export default function FlavorSelect() {
 
   return (
     <div className="screen flavor-screen">
+      {showModal && <NameModal onComplete={() => setShowModal(false)} />}
+
       <div className="flavor-inner">
         <h2 className="flavor-heading">What shall we contemplate?</h2>
         <p className="flavor-sub muted">
@@ -64,12 +65,16 @@ export default function FlavorSelect() {
 
         <div className="divider" />
 
-        <div className="flavor-grid">
+        <div className="flavor-grid" role="group" aria-label="Philosophical domains">
           {FLAVORS.map(f => (
             <div
               key={f.id}
               className={`flavor-card${selected.includes(f.id) ? ' selected' : ''}`}
               onClick={() => toggle(f.id)}
+              role="checkbox"
+              aria-checked={selected.includes(f.id)}
+              tabIndex={0}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && toggle(f.id)}
             >
               <h4 className="flavor-card-title">{f.label}</h4>
               <p className="flavor-card-desc">{f.desc}</p>

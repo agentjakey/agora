@@ -28,7 +28,13 @@
   margin-top: 8px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
+  .flavor-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 400px) {
   .flavor-grid {
     grid-template-columns: 1fr;
   }
@@ -42,8 +48,10 @@
   border-radius: 1px;
 }
 
-.flavor-card:hover {
+.flavor-card:hover,
+.flavor-card:focus {
   border-color: var(--accent);
+  outline: none;
 }
 
 .flavor-card.selected {
