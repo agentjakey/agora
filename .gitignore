@@ -216,3 +216,29 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Node / React
+node_modules/
+frontend/dist/
+frontend/.env
+
+# Replit
+.replit
+replit.nix
+.upm/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data / logs
+*.log
+rooms.db
