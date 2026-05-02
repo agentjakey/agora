@@ -82,6 +82,7 @@
 
 .option {
   border: 1px solid var(--border);
+  border-top: 1px solid var(--accent);
   padding: 36px 28px;
   cursor: pointer;
   display: flex;
@@ -147,6 +148,8 @@
   font-family: 'Crimson Text', serif;
   font-size: clamp(17px, 2.5vw, 22px);
   line-height: 1.55;
+  hyphens: auto;
+  text-align: justify;
 }
 
 .option-intent {

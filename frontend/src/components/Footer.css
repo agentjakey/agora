@@ -1,0 +1,33 @@
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.65;
+}
+
+.footer-left {
+  font-style: italic;
+}
+
+.footer-right {
+  pointer-events: all;
+  color: var(--text-secondary);
+  font-style: italic;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.footer-right:hover {
+  color: var(--accent);
+}

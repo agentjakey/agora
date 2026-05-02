@@ -1,0 +1,56 @@
+@keyframes introOverlayFade {
+  0%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes introTextAppear {
+  0%   { opacity: 0; transform: translateY(6px); }
+  25%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: #0e0c09;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: introOverlayFade 2.6s ease forwards;
+  pointer-events: all;
+}
+
+.intro-text {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(18px, 3vw, 26px);
+  color: #e8dfc0;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 0 24px;
+  animation: introTextAppear 2.4s ease forwards;
+}
+
+.intro-skip {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(184, 134, 11, 0.35);
+  color: rgba(184, 134, 11, 0.6);
+  padding: 8px 18px;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.intro-skip:hover {
+  border-color: rgba(184, 134, 11, 0.8);
+  color: rgba(184, 134, 11, 0.9);
+}
