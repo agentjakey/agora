@@ -1,7 +1,7 @@
 # AGORA
 ### *multiplayer philosophical would you rather - for people who ruin dinner*
 
-**[Play Now →](agora-production-695a.up.railway.app)** &nbsp;·&nbsp; Built May 2, 2026 · Replit Buildathon
+**[Play Now →](https://agora-production-695a.up.railway.app/)** Built May 2, 2026 · Replit Buildathon
 
 ---
 
