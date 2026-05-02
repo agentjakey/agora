@@ -28,7 +28,6 @@ export function RoomProvider({ children }) {
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const url = `${protocol}//${window.location.host}/ws/${code}/${uid}`
-
     const ws = new WebSocket(url)
     wsRef.current = ws
 
@@ -49,9 +48,7 @@ export function RoomProvider({ children }) {
       reconnectTimer.current = setTimeout(() => connectWs(code, uid), delay)
     }
 
-    ws.onerror = () => {
-      ws.close()
-    }
+    ws.onerror = () => ws.close()
   }, [])
 
   const handleWsMessage = useCallback((msg) => {
@@ -60,12 +57,14 @@ export function RoomProvider({ children }) {
         setRoomState(msg.state)
         setPhase(msg.state.phase)
         break
+
       case 'user_joined':
         setRoomState(prev => prev ? {
           ...prev,
           users: { ...prev.users, [msg.user.id]: { name: msg.user.name, connected: true } }
         } : prev)
         break
+
       case 'user_left':
         setRoomState(prev => prev ? {
           ...prev,
@@ -75,13 +74,23 @@ export function RoomProvider({ children }) {
           }
         } : prev)
         break
+
       case 'question_ready':
-        setRoomState(prev => prev ? { ...prev, current_question: msg.question, votes: {}, phase: 'question' } : prev)
+        setRoomState(prev => prev ? {
+          ...prev,
+          current_question: msg.question,
+          votes: {},
+          phase: 'question',
+          _voteUpdate: { A: 0, B: 0, total: 0, voted_ids: [] },
+          _questionTimestamp: msg.server_timestamp || Date.now(),
+        } : prev)
         setPhase('question')
         break
+
       case 'vote_update':
         setRoomState(prev => prev ? { ...prev, _voteUpdate: msg.votes } : prev)
         break
+
       case 'reveal':
         setRoomState(prev => prev ? {
           ...prev,
@@ -91,10 +100,12 @@ export function RoomProvider({ children }) {
         } : prev)
         setPhase('reveal')
         break
+
       case 'session_ended':
         setPhase('ended')
         setRoomState(prev => prev ? { ...prev, phase: 'ended' } : prev)
         break
+
       default:
         break
     }
@@ -115,11 +126,7 @@ export function RoomProvider({ children }) {
     localStorage.setItem('agora_user_name', name)
   }, [])
 
-  useEffect(() => {
-    return () => {
-      clearTimeout(reconnectTimer.current)
-    }
-  }, [])
+  useEffect(() => () => clearTimeout(reconnectTimer.current), [])
 
   return (
     <RoomContext.Provider value={{

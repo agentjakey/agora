@@ -31,21 +31,26 @@
 .split-a {
   height: 100%;
   background: var(--option-a-text);
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .split-b {
   height: 100%;
   background: var(--option-b-text);
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
 }
 
+/* Percentages — hidden until .visible */
 .reveal-percentages {
   display: flex;
   align-items: baseline;
   gap: 16px;
   margin-top: 20px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.reveal-percentages.visible {
+  opacity: 1;
 }
 
 .pct-a {
@@ -72,8 +77,15 @@
   font-size: 15px;
   font-style: italic;
   margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
+.reveal-vote-counts.visible {
+  opacity: 1;
+}
+
+/* Framing — hidden until .visible */
 .reveal-framing {
   font-family: 'Crimson Text', serif;
   font-style: italic;
@@ -83,14 +95,27 @@
   margin-top: 28px;
   line-height: 1.6;
   max-width: 520px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
+.reveal-framing.visible {
+  opacity: 1;
+}
+
+/* Option recap */
 .reveal-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
   margin-top: 24px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.reveal-options.visible {
+  opacity: 1;
 }
 
 @media (max-width: 540px) {
@@ -127,14 +152,28 @@
   opacity: 0.7;
 }
 
+/* Host controls */
 .reveal-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
 }
 
+.reveal-end-btn {
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.reveal-end-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+/* Guest view */
 .reveal-waiting {
+  font-family: 'Crimson Text', serif;
   font-style: italic;
-  font-size: 17px;
+  font-size: 16px;
+  color: var(--text-secondary);
 }

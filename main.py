@@ -4,6 +4,7 @@ import json
 import random
 import logging
 import time
+import asyncio
 import difflib
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -23,6 +24,7 @@ CONSONANTS = "BCDFGHJKLMNPQRSTVWXYZ"
 RATE_LIMIT_SECONDS = 20
 DEDUP_HISTORY = 20
 SIMILARITY_THRESHOLD = 0.80
+AUTO_REVEAL_SECONDS = 45
 
 rooms: dict = {}
 
@@ -91,6 +93,7 @@ def make_room(room_code: str, host_id: str, host_name: str, flavors: list[str]) 
         "phase": "lobby",
         "connections": [],
         "last_generated_at": 0.0,
+        "timer_task": None,
     }
 
 
@@ -148,7 +151,7 @@ def _parse_claude_response(raw: str) -> dict:
     return json.loads(raw)
 
 
-async def _call_claude(flavors: list[str]) -> dict:
+async def _call_claude(flavors: list[str]) -> dict | None:
     client = anthropic.AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     user_message = "Generate a philosophical Would You Rather question."
@@ -195,7 +198,7 @@ async def generate_question(flavors: list[str], question_texts: list[str]) -> di
             break
         if not _is_duplicate(q, question_texts):
             return q
-        logger.info(f"Duplicate question detected on attempt {attempt + 1}, regenerating...")
+        logger.info(f"Duplicate detected on attempt {attempt + 1}, regenerating...")
         if attempt == 2:
             logger.info("Max dedup retries reached, accepting anyway.")
             return q
@@ -211,12 +214,62 @@ async def generate_question(flavors: list[str], question_texts: list[str]) -> di
 
 
 def _check_rate_limit(room: dict) -> bool:
-    now = time.time()
-    return (now - room["last_generated_at"]) >= RATE_LIMIT_SECONDS
+    return (time.time() - room["last_generated_at"]) >= RATE_LIMIT_SECONDS
 
 
 def _touch_rate_limit(room: dict):
     room["last_generated_at"] = time.time()
+
+
+def _cancel_timer(room: dict):
+    task = room.get("timer_task")
+    if task and not task.done():
+        task.cancel()
+    room["timer_task"] = None
+
+
+async def _auto_reveal(room_code: str, question_id: str):
+    try:
+        await asyncio.sleep(AUTO_REVEAL_SECONDS)
+    except asyncio.CancelledError:
+        return
+
+    room = rooms.get(room_code)
+    if not room:
+        return
+    if room.get("phase") != "question":
+        return
+    q = room.get("current_question") or {}
+    if q.get("id") != question_id:
+        return
+
+    vote_counts = {"A": 0, "B": 0}
+    for v in room["votes"].values():
+        vote_counts[v] += 1
+
+    room["phase"] = "reveal"
+    room["timer_task"] = None
+    if room["current_question"]:
+        room["question_history"].append({
+            **room["current_question"],
+            "final_votes": vote_counts,
+        })
+
+    logger.info(f"Auto-reveal fired for room {room_code} question {question_id}")
+    await broadcast(room, {
+        "event": "reveal",
+        "final_votes": vote_counts,
+        "question": room["current_question"],
+    })
+
+
+def _start_timer(room: dict):
+    _cancel_timer(room)
+    room_code = room["room_code"]
+    question_id = room["current_question"]["id"]
+    room["timer_task"] = asyncio.create_task(
+        _auto_reveal(room_code, question_id)
+    )
 
 
 @asynccontextmanager
@@ -267,13 +320,20 @@ class AcceptPreviewBody(BaseModel):
     host_id: str
 
 
+def _broadcast_question(room: dict, question: dict) -> dict:
+    return {
+        "event": "question_ready",
+        "question": question,
+        "server_timestamp": int(time.time() * 1000),
+    }
+
+
 @app.post("/room/create")
 async def create_room(body: CreateRoomBody):
     host_id = str(uuid.uuid4())
-    user_id = host_id
     room_code = generate_room_code()
     rooms[room_code] = make_room(room_code, host_id, body.host_name, body.flavors)
-    return {"room_code": room_code, "host_id": host_id, "user_id": user_id}
+    return {"room_code": room_code, "host_id": host_id, "user_id": host_id}
 
 
 @app.post("/room/join")
@@ -305,23 +365,21 @@ async def start_room(room_code: str, body: StartRoomBody):
     if room["host_id"] != body.host_id:
         raise HTTPException(status_code=403, detail="Only the host can start the session")
 
-    if not _check_rate_limit(room):
-        if room["current_question"]:
-            return {"status": "rate_limited", "question": room["current_question"]}
+    if not _check_rate_limit(room) and room["current_question"]:
+        return {"status": "rate_limited", "question": room["current_question"]}
 
     _touch_rate_limit(room)
     room["phase"] = "question"
     room["votes"] = {}
 
-    if room.get("preview_question"):
-        question = room["preview_question"]
-        room["preview_question"] = None
-    else:
-        question = await generate_question(room["flavors"], room["question_texts"])
-
+    question = room.pop("preview_question", None) or await generate_question(
+        room["flavors"], room["question_texts"]
+    )
     _record_question(room, question)
     room["current_question"] = question
-    await broadcast(room, {"event": "question_ready", "question": question})
+
+    _start_timer(room)
+    await broadcast(room, _broadcast_question(room, question))
     return {"status": "started", "question": question}
 
 
@@ -333,6 +391,7 @@ async def vote(room_code: str, body: VoteBody):
     room = rooms[room_code]
     if body.vote not in ("A", "B"):
         raise HTTPException(status_code=400, detail="Vote must be 'A' or 'B'")
+
     room["votes"][body.user_id] = body.vote
 
     vote_counts = {"A": 0, "B": 0}
@@ -354,6 +413,7 @@ async def vote(room_code: str, body: VoteBody):
     })
 
     if total_connected > 0 and len(voted_ids) >= total_connected:
+        _cancel_timer(room)
         room["phase"] = "reveal"
         if room["current_question"]:
             room["question_history"].append({
@@ -378,26 +438,25 @@ async def next_question(room_code: str, body: NextBody):
     if room["host_id"] != body.host_id:
         raise HTTPException(status_code=403, detail="Only the host can advance")
 
-    if not _check_rate_limit(room):
-        if room["current_question"]:
-            room["votes"] = {}
-            room["phase"] = "question"
-            await broadcast(room, {"event": "question_ready", "question": room["current_question"]})
-            return {"status": "rate_limited", "question": room["current_question"]}
+    if not _check_rate_limit(room) and room["current_question"]:
+        room["votes"] = {}
+        room["phase"] = "question"
+        _start_timer(room)
+        await broadcast(room, _broadcast_question(room, room["current_question"]))
+        return {"status": "rate_limited", "question": room["current_question"]}
 
     _touch_rate_limit(room)
     room["votes"] = {}
     room["phase"] = "question"
 
-    if room.get("preview_question"):
-        question = room["preview_question"]
-        room["preview_question"] = None
-    else:
-        question = await generate_question(room["flavors"], room["question_texts"])
-
+    question = room.pop("preview_question", None) or await generate_question(
+        room["flavors"], room["question_texts"]
+    )
     _record_question(room, question)
     room["current_question"] = question
-    await broadcast(room, {"event": "question_ready", "question": question})
+
+    _start_timer(room)
+    await broadcast(room, _broadcast_question(room, question))
     return {"status": "next", "question": question}
 
 
@@ -409,6 +468,7 @@ async def end_session(room_code: str, body: EndBody):
     room = rooms[room_code]
     if room["host_id"] != body.host_id:
         raise HTTPException(status_code=403, detail="Only the host can end the session")
+    _cancel_timer(room)
     room["phase"] = "ended"
     await broadcast(room, {"event": "session_ended"})
     return {"status": "ended"}
@@ -422,7 +482,6 @@ async def preview_question(room_code: str, host_id: str):
     room = rooms[room_code]
     if room["host_id"] != host_id:
         raise HTTPException(status_code=403, detail="Only the host can preview questions")
-
     question = await generate_question(room["flavors"], room["question_texts"])
     room["preview_question"] = question
     return {"question": question}
@@ -438,18 +497,17 @@ async def accept_preview(room_code: str, body: AcceptPreviewBody):
         raise HTTPException(status_code=403, detail="Only the host can accept a preview")
     if not room.get("preview_question"):
         raise HTTPException(status_code=400, detail="No preview question available")
-
     if not _check_rate_limit(room):
         raise HTTPException(status_code=429, detail="Rate limit: wait before generating another question")
 
     _touch_rate_limit(room)
-    question = room["preview_question"]
-    room["preview_question"] = None
+    question = room.pop("preview_question")
     _record_question(room, question)
     room["current_question"] = question
     room["votes"] = {}
     room["phase"] = "question"
-    await broadcast(room, {"event": "question_ready", "question": question})
+    _start_timer(room)
+    await broadcast(room, _broadcast_question(room, question))
     return {"status": "accepted", "question": question}
 
 
@@ -477,7 +535,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str)
     })
 
     try:
-        await websocket.send_json({"event": "room_state", "state": room_state(room)})
+        state = room_state(room)
+        await websocket.send_json({"event": "room_state", "state": state})
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
