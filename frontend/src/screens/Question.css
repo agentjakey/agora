@@ -69,9 +69,14 @@
   width: 100%;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .options-row {
     grid-template-columns: 1fr;
+  }
+
+  .option {
+    min-height: 160px;
+    padding: 28px 20px;
   }
 }
 
@@ -92,6 +97,11 @@
 
 .option:focus {
   outline: none;
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .option-a {
