@@ -98,12 +98,18 @@ async def generate_question(flavors: list[str]) -> dict:
     for attempt in range(2):
         try:
             response = await client.messages.create(
-                model="claude-haiku-4-5",
+                model="claude-3-haiku-20240307",
                 max_tokens=512,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_message}],
             )
             raw = response.content[0].text.strip()
+            # Strip markdown code fences if Claude wraps the response
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+                raw = raw.strip()
             data = json.loads(raw)
             return {
                 "id": str(uuid.uuid4()),
