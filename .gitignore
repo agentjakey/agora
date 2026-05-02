@@ -227,7 +227,7 @@ venv/
 
 # Node / React
 node_modules/
-frontend/dist/
+# frontend/dist/ — committed for Railway deployment (no npm build step)
 frontend/.env
 
 # Replit
