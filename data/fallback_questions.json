@@ -2,51 +2,61 @@
   {
     "option_a": "spend your life building something that outlasts you but never see it finished",
     "option_b": "complete something meaningful in your lifetime that disappears entirely the moment you die",
-    "domain": "Time & Existence"
+    "framing": "Whether legacy requires your absence or meaning requires your witness.",
+    "flavors": ["Time", "Meaning"]
   },
   {
     "option_a": "be able to fully understand every person you meet but no one can understand you",
     "option_b": "be completely understood by everyone, but lose the capacity to understand others",
-    "domain": "Consciousness & Identity"
+    "framing": "Whether empathy flows outward or inward — and which direction makes a life livable.",
+    "flavors": ["Consciousness", "Identity"]
   },
   {
     "option_a": "live in a world where every moral question has a correct, knowable answer",
     "option_b": "live in a world where morality is genuinely uncertain, but your choices are entirely your own",
-    "domain": "Morality & Justice"
+    "framing": "Whether moral certainty is worth the loss of authentic agency.",
+    "flavors": ["Morality", "Knowledge"]
   },
   {
     "option_a": "have the power to end all suffering in the world but erase all joy along with it",
     "option_b": "preserve the full spectrum of human experience knowing suffering will always exist",
-    "domain": "Morality & Justice"
+    "framing": "Whether the elimination of suffering justifies the elimination of its opposite.",
+    "flavors": ["Morality", "Meaning"]
   },
   {
     "option_a": "know the exact moment and manner of your death",
-    "option_b": "never know, but be guaranteed it will be peaceful",
-    "domain": "Time & Existence"
+    "option_b": "never know when you will die but be guaranteed it will be peaceful",
+    "framing": "Whether certainty about finitude changes how fully we inhabit the present.",
+    "flavors": ["Time", "Identity"]
   },
   {
     "option_a": "remember every experience you have ever had with perfect clarity",
     "option_b": "forget everything after seven years but live each moment with complete presence",
-    "domain": "Consciousness & Identity"
+    "framing": "Whether a self requires continuity of memory or fullness of attention.",
+    "flavors": ["Consciousness", "Identity", "Time"]
   },
   {
     "option_a": "live in a just society you had no hand in creating",
     "option_b": "build a society from scratch knowing it will be imperfect but yours",
-    "domain": "Power & Society"
+    "framing": "Whether justice is something inherited or something made — and which binds more deeply.",
+    "flavors": ["Power", "Morality"]
   },
   {
-    "option_a": "discover that free will is an illusion and all choices are determined",
-    "option_b": "have genuine free will but bear full responsibility for every outcome of every choice",
-    "domain": "Knowledge & Perception"
+    "option_a": "discover that free will is an illusion and all choices are fully determined",
+    "option_b": "have genuine free will but bear absolute responsibility for every consequence of every choice",
+    "framing": "Whether freedom is worth the weight of total accountability.",
+    "flavors": ["Knowledge", "Morality", "Consciousness"]
   },
   {
-    "option_a": "pursue a truth that destroys everything you love",
+    "option_a": "pursue a truth that destroys everything you currently love",
     "option_b": "live inside a beautiful lie that sustains everything you value",
-    "domain": "Knowledge & Perception"
+    "framing": "Whether truth has intrinsic worth or only instrumental worth — and what that means for a life.",
+    "flavors": ["Knowledge", "Meaning"]
   },
   {
     "option_a": "be remembered forever for something you are not proud of",
     "option_b": "be forgotten entirely after living a life you are deeply proud of",
-    "domain": "Meaning"
+    "framing": "Whether legacy is for the living or the dead — and who its audience really is.",
+    "flavors": ["Meaning", "Identity", "Time"]
   }
 ]
