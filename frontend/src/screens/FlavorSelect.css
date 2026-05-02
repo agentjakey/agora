@@ -1,0 +1,72 @@
+.flavor-screen {
+  justify-content: flex-start;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.flavor-inner {
+  max-width: 700px;
+  width: 100%;
+}
+
+.flavor-heading {
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.flavor-sub {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 8px;
+}
+
+.flavor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 500px) {
+  .flavor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.flavor-card {
+  border: 1px solid var(--border);
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  border-radius: 1px;
+}
+
+.flavor-card:hover {
+  border-color: var(--accent);
+}
+
+.flavor-card.selected {
+  border-color: var(--accent);
+  background: rgba(184, 134, 11, 0.06);
+}
+
+.flavor-card-title {
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.flavor-card-desc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.flavor-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 28px;
+}

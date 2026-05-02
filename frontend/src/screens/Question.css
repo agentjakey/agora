@@ -1,0 +1,123 @@
+.question-screen {
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.question-inner {
+  max-width: 860px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.question-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.question-framing {
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+  font-size: 19px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 560px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .options-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.option {
+  border: 1px solid var(--border);
+  padding: 36px 28px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+  border-radius: 1px;
+  min-height: 220px;
+  justify-content: center;
+  gap: 16px;
+}
+
+.option:focus {
+  outline: none;
+}
+
+.option-a {
+  background: var(--option-a);
+  color: var(--option-a-text);
+}
+
+.option-b {
+  background: var(--option-b);
+  color: var(--option-b-text);
+}
+
+.option:hover {
+  border-color: var(--accent);
+}
+
+.option.voted {
+  border-color: var(--accent);
+  border-width: 2px;
+  border-left-width: 4px;
+}
+
+.option.dimmed {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.option-numeral {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  opacity: 0.7;
+}
+
+.option-text {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(17px, 2.5vw, 22px);
+  line-height: 1.55;
+}
+
+.timer-bar-wrap {
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  margin-top: 24px;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.timer-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 1s linear;
+}
+
+.question-tally {
+  margin-top: 14px;
+  font-size: 15px;
+  font-style: italic;
+  letter-spacing: 0.03em;
+}

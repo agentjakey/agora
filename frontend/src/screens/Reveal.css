@@ -1,0 +1,140 @@
+.reveal-screen {
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.reveal-inner {
+  max-width: 680px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reveal-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.reveal-split-bar {
+  width: 100%;
+  height: 12px;
+  display: flex;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+.split-a {
+  height: 100%;
+  background: var(--option-a-text);
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.split-b {
+  height: 100%;
+  background: var(--option-b-text);
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+}
+
+.reveal-percentages {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.pct-a {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(36px, 8vw, 60px);
+  color: var(--option-a-text);
+  font-weight: 600;
+}
+
+.pct-b {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(36px, 8vw, 60px);
+  color: var(--option-b-text);
+  font-weight: 600;
+}
+
+.reveal-dot {
+  font-size: 24px;
+}
+
+.reveal-vote-counts {
+  display: flex;
+  gap: 16px;
+  font-size: 15px;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.reveal-framing {
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+  font-size: clamp(19px, 3vw, 24px);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 28px;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.reveal-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+@media (max-width: 540px) {
+  .reveal-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.reveal-option {
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 16px;
+  line-height: 1.5;
+  border-radius: 1px;
+}
+
+.reveal-option-a {
+  background: var(--option-a);
+  color: var(--option-a-text);
+}
+
+.reveal-option-b {
+  background: var(--option-b);
+  color: var(--option-b-text);
+}
+
+.reveal-option-numeral {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  opacity: 0.7;
+}
+
+.reveal-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.reveal-waiting {
+  font-style: italic;
+  font-size: 17px;
+}
