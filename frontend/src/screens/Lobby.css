@@ -17,7 +17,7 @@
 }
 
 .lobby-code {
-  font-size: clamp(28px, 7vw, 52px);
+  font-size: clamp(24px, 7vw, 52px);
   color: var(--accent);
   letter-spacing: 0.15em;
 }
@@ -75,6 +75,12 @@
   letter-spacing: 0.05em;
 }
 
+.lobby-change-name {
+  margin-top: 12px;
+  font-size: 14px;
+  font-style: italic;
+}
+
 .lobby-flavors {
   display: flex;
   flex-wrap: wrap;
@@ -102,4 +108,24 @@
 .lobby-waiting {
   font-style: italic;
   font-size: 17px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: inherit;
+  font-style: italic;
+  color: var(--accent);
+  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-btn:hover {
+  color: var(--accent-hover);
+  border: none;
 }

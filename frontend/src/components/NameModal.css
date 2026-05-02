@@ -1,0 +1,45 @@
+.name-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 12, 9, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.name-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 44px 48px;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.name-modal-heading {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  color: var(--text-primary);
+  letter-spacing: 0.06em;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.name-modal-input {
+  margin-top: 20px;
+  margin-bottom: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 0.05em;
+}
+
+.name-modal-btn {
+  margin-top: 20px;
+  width: 100%;
+}
