@@ -8,7 +8,7 @@ Multiplayer philosophical "Would You Rather" — real-time, room-based, AI-gener
 |---|---|
 | Backend | Python FastAPI, port 8000 |
 | Real-time | FastAPI WebSockets (built-in) |
-| LLM | Anthropic `claude-3-5-haiku-20241022` |
+| LLM | Anthropic `claude-haiku-4-5-20251001` |
 | Frontend | React + Vite, port 5000 (not yet built) |
 | Storage | In-memory Python dicts — no database, rooms expire on restart |
 
