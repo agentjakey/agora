@@ -1,0 +1,150 @@
+.summary-screen {
+  justify-content: flex-start;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.summary-inner {
+  max-width: 640px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-heading {
+  font-size: clamp(22px, 5vw, 36px);
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-number {
+  font-family: 'Cinzel', serif;
+  font-size: 42px;
+  color: var(--accent);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: 'Crimson Text', serif;
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.summary-history {
+  width: 100%;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summary-history-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.summary-question {
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 1px;
+}
+
+.summary-q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.sq-a { color: var(--option-a-text); }
+.sq-b { color: var(--option-b-text); }
+.sq-vs { font-style: italic; font-size: 13px; padding-left: 4px; }
+
+.sq-split {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sq-pct-a {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--option-a-text);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sq-pct-b {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--option-b-text);
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.sq-bar {
+  flex: 1;
+  height: 6px;
+  display: flex;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+.sq-bar-a {
+  height: 100%;
+  background: var(--option-a-text);
+}
+
+.sq-bar-b {
+  height: 100%;
+  background: var(--option-b-text);
+  flex: 1;
+}
+
+.summary-quote {
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 480px;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+
+.summary-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}
