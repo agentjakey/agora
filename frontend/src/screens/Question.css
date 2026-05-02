@@ -1,6 +1,20 @@
 .question-screen {
   justify-content: center;
   padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-screen::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='20'%3E%3Cpath d='M0 10 L5 10 L5 5 L10 5 L10 15 L15 15 L15 5 L20 5 L20 10 L25 10 L25 5 L30 5 L30 15 L35 15 L35 5 L40 5 L40 10 L45 10 L45 5 L50 5 L50 15 L55 15 L55 5 L60 5 L60 10 L65 10 L65 5 L70 5 L70 15 L75 15 L75 5 L80 5 L80 10' fill='none' stroke='%23b8860b' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 80px 20px;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .question-inner {
@@ -9,6 +23,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .question-label {

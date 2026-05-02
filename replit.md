@@ -54,6 +54,20 @@ agora/
             └── Summary.jsx        # Session recap with question history
 ```
 
+## Question Engine
+
+The generation system in `main.py` has several layers:
+
+| Feature | Detail |
+|---|---|
+| Model | `claude-haiku-4-5-20251001` |
+| System prompt | Socratic/Kant/Parfit/Nozick tradition — strict quality benchmark |
+| Flavor injection | Injected into user message when host selects domains |
+| Deduplication | `difflib.SequenceMatcher` — rejects questions ≥80% similar to last 20 |
+| Rate limiting | 1 question per 20 seconds per room (timestamp check, no external lib) |
+| Host preview | `GET /room/{code}/preview_question` — generate without broadcasting; `POST /accept_preview` to use it |
+| Fallback bank | 10 hand-crafted questions in `data/fallback_questions.json` (used if Claude fails) |
+
 ## Environment Variables
 
 - `ANTHROPIC_API_KEY` — stored in Replit Secrets, never in code. Falls back to `data/fallback_questions.json` if missing or API fails.

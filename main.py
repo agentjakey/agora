@@ -3,6 +3,8 @@ import uuid
 import json
 import random
 import logging
+import time
+import difflib
 from typing import Optional
 from contextlib import asynccontextmanager
 
@@ -18,11 +20,54 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 CONSONANTS = "BCDFGHJKLMNPQRSTVWXYZ"
+RATE_LIMIT_SECONDS = 20
+DEDUP_HISTORY = 20
+SIMILARITY_THRESHOLD = 0.80
 
 rooms: dict = {}
 
 with open("data/fallback_questions.json") as f:
     FALLBACK_QUESTIONS = json.load(f)
+
+SYSTEM_PROMPT = """You are a philosophical dilemma architect trained in the tradition of Socratic dialogue,
+Kant's moral philosophy, and the thought experiments of Derek Parfit and Robert Nozick.
+
+Your task is to generate a single Would You Rather question that:
+
+MUST HAVE:
+- Two options that are genuinely asymmetric — one is not obviously better
+- Real philosophical stakes: something about identity, consciousness, knowledge,
+  justice, free will, meaning, time, or power is at stake
+- Enough specificity to be imaginable but enough abstraction to be universal
+- The capacity to split a thoughtful group of people 40/60 or 50/50
+- A framing sentence that names the philosophical tension precisely
+
+MUST NOT HAVE:
+- Shock value, body horror, graphic content
+- Direct political figures or partisan hot-button issues
+- Content inappropriate for anyone over 16
+- An obvious 'right answer' that ends the debate before it begins
+- Options that differ only in scale (e.g. 'save 1 person vs. save 100')
+
+QUALITY BENCHMARK:
+A question passes if, after reading it, a thoughtful person says:
+'Oh, that's actually hard. I need to think about that.'
+
+BAD EXAMPLE (too trivial):
+Would you rather always be 10 minutes late or always be 20 minutes early?
+
+GOOD EXAMPLE (target quality):
+Would you rather spend your life building something that outlasts you but which
+you will never see completed, or complete something meaningful within your lifetime
+that disappears entirely when you die?
+
+Respond ONLY with a JSON object:
+{
+  "option_a": "...",
+  "option_b": "...",
+  "framing": "one precise sentence naming the philosophical tension",
+  "flavors": ["1-3 tags from: Consciousness, Identity, Knowledge, Morality, Power, Time, Meaning, Science"]
+}"""
 
 
 def generate_room_code() -> str:
@@ -39,10 +84,13 @@ def make_room(room_code: str, host_id: str, host_name: str, flavors: list[str]) 
         "flavors": flavors,
         "users": {host_id: {"name": host_name, "connected": False}},
         "current_question": None,
+        "preview_question": None,
         "votes": {},
         "question_history": [],
+        "question_texts": [],
         "phase": "lobby",
         "connections": [],
+        "last_generated_at": 0.0,
     }
 
 
@@ -70,47 +118,56 @@ async def broadcast(room: dict, message: dict):
         room["connections"].remove(ws)
 
 
-async def generate_question(flavors: list[str]) -> dict:
-    client = anthropic.AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+def _similarity(a: str, b: str) -> float:
+    return difflib.SequenceMatcher(None, a.lower(), b.lower()).ratio()
 
-    system_prompt = (
-        "You are a philosophical dilemma designer in the tradition of Socratic dialogue.\n"
-        "Your role is to generate a single 'Would You Rather' question that:\n"
-        "- Presents two genuinely asymmetric options — both have real costs and real rewards\n"
-        "- Touches on philosophical themes: identity, consciousness, knowledge, justice, time, power, or meaning\n"
-        "- Is designed to split a group of thoughtful people and generate real disagreement\n"
-        "- Contains no shock value, no graphic content, no political figures, no trauma triggers\n"
-        "- Is specific enough to picture but universal enough to apply to any human life\n"
-        "- Is appropriate for all ages above 16\n\n"
-        'Respond ONLY with a JSON object, no markdown, no backticks, no preamble:\n'
-        '{\n'
-        '  "option_a": "full text of the first choice",\n'
-        '  "option_b": "full text of the second choice",\n'
-        '  "framing": "one sentence describing what is philosophically at stake between these two options",\n'
-        '  "flavors": [list of 1-3 flavor tags that apply: Consciousness, Identity, Knowledge, Morality, Power, Time, Meaning]\n'
-        '}'
-    )
+
+def _is_duplicate(question: dict, question_texts: list[str]) -> bool:
+    candidate = question["option_a"] + " " + question["option_b"]
+    for prev in question_texts:
+        if _similarity(candidate, prev) >= SIMILARITY_THRESHOLD:
+            return True
+    return False
+
+
+def _record_question(room: dict, question: dict):
+    text = question["option_a"] + " " + question["option_b"]
+    room["question_texts"].append(text)
+    if len(room["question_texts"]) > DEDUP_HISTORY:
+        room["question_texts"].pop(0)
+
+
+def _parse_claude_response(raw: str) -> dict:
+    raw = raw.strip()
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        raw = parts[1] if len(parts) > 1 else raw
+        if raw.startswith("json"):
+            raw = raw[4:]
+        raw = raw.strip()
+    return json.loads(raw)
+
+
+async def _call_claude(flavors: list[str]) -> dict:
+    client = anthropic.AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     user_message = "Generate a philosophical Would You Rather question."
     if flavors:
-        user_message = f"Generate a question emphasizing these philosophical flavors: {', '.join(flavors)}"
+        user_message = (
+            f"Generate a philosophical Would You Rather question.\n"
+            f"This group has indicated interest in: {', '.join(flavors)}.\n"
+            f"Prioritize questions that engage these themes, but do not sacrifice quality for specificity."
+        )
 
     for attempt in range(2):
         try:
             response = await client.messages.create(
                 model="claude-haiku-4-5-20251001",
-                max_tokens=512,
-                system=system_prompt,
+                max_tokens=600,
+                system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_message}],
             )
-            raw = response.content[0].text.strip()
-            # Strip markdown code fences if Claude wraps the response
-            if raw.startswith("```"):
-                raw = raw.split("```")[1]
-                if raw.startswith("json"):
-                    raw = raw[4:]
-                raw = raw.strip()
-            data = json.loads(raw)
+            data = _parse_claude_response(response.content[0].text)
             return {
                 "id": str(uuid.uuid4()),
                 "option_a": data["option_a"],
@@ -122,11 +179,26 @@ async def generate_question(flavors: list[str]) -> dict:
             if attempt == 0:
                 logger.warning("Malformed JSON from Claude, retrying once...")
                 continue
-            logger.error("Claude returned malformed JSON on both attempts, using fallback.")
+            logger.error("Malformed JSON on both attempts, using fallback.")
             break
         except Exception as e:
             logger.error(f"Claude API error: {e}")
             break
+
+    return None
+
+
+async def generate_question(flavors: list[str], question_texts: list[str]) -> dict:
+    for attempt in range(3):
+        q = await _call_claude(flavors)
+        if q is None:
+            break
+        if not _is_duplicate(q, question_texts):
+            return q
+        logger.info(f"Duplicate question detected on attempt {attempt + 1}, regenerating...")
+        if attempt == 2:
+            logger.info("Max dedup retries reached, accepting anyway.")
+            return q
 
     fallback = random.choice(FALLBACK_QUESTIONS)
     return {
@@ -136,6 +208,15 @@ async def generate_question(flavors: list[str]) -> dict:
         "framing": fallback.get("framing", ""),
         "flavors": fallback.get("flavors", []),
     }
+
+
+def _check_rate_limit(room: dict) -> bool:
+    now = time.time()
+    return (now - room["last_generated_at"]) >= RATE_LIMIT_SECONDS
+
+
+def _touch_rate_limit(room: dict):
+    room["last_generated_at"] = time.time()
 
 
 @asynccontextmanager
@@ -182,6 +263,10 @@ class EndBody(BaseModel):
     host_id: str
 
 
+class AcceptPreviewBody(BaseModel):
+    host_id: str
+
+
 @app.post("/room/create")
 async def create_room(body: CreateRoomBody):
     host_id = str(uuid.uuid4())
@@ -219,9 +304,22 @@ async def start_room(room_code: str, body: StartRoomBody):
     room = rooms[room_code]
     if room["host_id"] != body.host_id:
         raise HTTPException(status_code=403, detail="Only the host can start the session")
+
+    if not _check_rate_limit(room):
+        if room["current_question"]:
+            return {"status": "rate_limited", "question": room["current_question"]}
+
+    _touch_rate_limit(room)
     room["phase"] = "question"
     room["votes"] = {}
-    question = await generate_question(room["flavors"])
+
+    if room.get("preview_question"):
+        question = room["preview_question"]
+        room["preview_question"] = None
+    else:
+        question = await generate_question(room["flavors"], room["question_texts"])
+
+    _record_question(room, question)
     room["current_question"] = question
     await broadcast(room, {"event": "question_ready", "question": question})
     return {"status": "started", "question": question}
@@ -279,9 +377,25 @@ async def next_question(room_code: str, body: NextBody):
     room = rooms[room_code]
     if room["host_id"] != body.host_id:
         raise HTTPException(status_code=403, detail="Only the host can advance")
+
+    if not _check_rate_limit(room):
+        if room["current_question"]:
+            room["votes"] = {}
+            room["phase"] = "question"
+            await broadcast(room, {"event": "question_ready", "question": room["current_question"]})
+            return {"status": "rate_limited", "question": room["current_question"]}
+
+    _touch_rate_limit(room)
     room["votes"] = {}
     room["phase"] = "question"
-    question = await generate_question(room["flavors"])
+
+    if room.get("preview_question"):
+        question = room["preview_question"]
+        room["preview_question"] = None
+    else:
+        question = await generate_question(room["flavors"], room["question_texts"])
+
+    _record_question(room, question)
     room["current_question"] = question
     await broadcast(room, {"event": "question_ready", "question": question})
     return {"status": "next", "question": question}
@@ -298,6 +412,45 @@ async def end_session(room_code: str, body: EndBody):
     room["phase"] = "ended"
     await broadcast(room, {"event": "session_ended"})
     return {"status": "ended"}
+
+
+@app.get("/room/{room_code}/preview_question")
+async def preview_question(room_code: str, host_id: str):
+    room_code = room_code.upper()
+    if room_code not in rooms:
+        raise HTTPException(status_code=404, detail="Room not found")
+    room = rooms[room_code]
+    if room["host_id"] != host_id:
+        raise HTTPException(status_code=403, detail="Only the host can preview questions")
+
+    question = await generate_question(room["flavors"], room["question_texts"])
+    room["preview_question"] = question
+    return {"question": question}
+
+
+@app.post("/room/{room_code}/accept_preview")
+async def accept_preview(room_code: str, body: AcceptPreviewBody):
+    room_code = room_code.upper()
+    if room_code not in rooms:
+        raise HTTPException(status_code=404, detail="Room not found")
+    room = rooms[room_code]
+    if room["host_id"] != body.host_id:
+        raise HTTPException(status_code=403, detail="Only the host can accept a preview")
+    if not room.get("preview_question"):
+        raise HTTPException(status_code=400, detail="No preview question available")
+
+    if not _check_rate_limit(room):
+        raise HTTPException(status_code=429, detail="Rate limit: wait before generating another question")
+
+    _touch_rate_limit(room)
+    question = room["preview_question"]
+    room["preview_question"] = None
+    _record_question(room, question)
+    room["current_question"] = question
+    room["votes"] = {}
+    room["phase"] = "question"
+    await broadcast(room, {"event": "question_ready", "question": question})
+    return {"status": "accepted", "question": question}
 
 
 @app.websocket("/ws/{room_code}/{user_id}")

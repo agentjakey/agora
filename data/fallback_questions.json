@@ -1,62 +1,62 @@
 [
   {
-    "option_a": "spend your life building something that outlasts you but never see it finished",
-    "option_b": "complete something meaningful in your lifetime that disappears entirely the moment you die",
-    "framing": "Whether legacy requires your absence or meaning requires your witness.",
-    "flavors": ["Time", "Meaning"]
+    "option_a": "retain your continuous memory and sense of self but discover that every choice you have ever made was fully determined by prior causes, leaving no room for genuine agency",
+    "option_b": "possess real, undetermined free will and full moral responsibility for every consequence of every choice, but lose all memory of who you were before the age of twelve",
+    "framing": "Whether the self is constituted by continuity of memory or by the authenticity of choice.",
+    "flavors": ["Identity", "Consciousness"]
   },
   {
-    "option_a": "be able to fully understand every person you meet but no one can understand you",
-    "option_b": "be completely understood by everyone, but lose the capacity to understand others",
-    "framing": "Whether empathy flows outward or inward — and which direction makes a life livable.",
-    "flavors": ["Consciousness", "Identity"]
+    "option_a": "know with certainty that consciousness is purely physical — that your sense of inner experience is an emergent property of neurons and nothing more",
+    "option_b": "know with certainty that consciousness is non-physical — that your mind exists independently of your brain, but that this fact cannot be scientifically demonstrated or shared with anyone",
+    "framing": "Whether it is better to have a true but reductive account of the self, or a transcendent one that must remain forever private.",
+    "flavors": ["Consciousness", "Knowledge"]
   },
   {
-    "option_a": "live in a world where every moral question has a correct, knowable answer",
-    "option_b": "live in a world where morality is genuinely uncertain, but your choices are entirely your own",
-    "framing": "Whether moral certainty is worth the loss of authentic agency.",
+    "option_a": "live in a world where every moral question has a single correct answer, discoverable through reason — but you are personally constitutionally unable to reach the right answer more than half the time",
+    "option_b": "live in a world where moral truth is genuinely plural and context-dependent — but you have unusually refined moral perception and your judgments are almost always the wisest in the room",
+    "framing": "Whether moral objectivity or moral competence matters more to living ethically.",
     "flavors": ["Morality", "Knowledge"]
   },
   {
-    "option_a": "have the power to end all suffering in the world but erase all joy along with it",
-    "option_b": "preserve the full spectrum of human experience knowing suffering will always exist",
-    "framing": "Whether the elimination of suffering justifies the elimination of its opposite.",
-    "flavors": ["Morality", "Meaning"]
+    "option_a": "prevent a serious injustice from occurring but only by committing a small injustice yourself — and no one, including you, will ever know you did it",
+    "option_b": "refuse to commit the small injustice, allowing the larger one to happen — and carry the private knowledge that you could have stopped it",
+    "framing": "Whether moral integrity is about the outcome of your actions or the cleanliness of your hands.",
+    "flavors": ["Morality", "Identity"]
   },
   {
-    "option_a": "know the exact moment and manner of your death",
-    "option_b": "never know when you will die but be guaranteed it will be peaceful",
-    "framing": "Whether certainty about finitude changes how fully we inhabit the present.",
+    "option_a": "live four hundred years, watching everyone you love die, outlasting every institution and culture you were raised in, unable to form attachments that will survive your lifespan",
+    "option_b": "live a single concentrated decade of extraordinary depth — profound love, meaningful work, genuine understanding — and then cease to exist entirely",
+    "framing": "Whether the value of a life is measured by its duration or its intensity.",
+    "flavors": ["Time", "Meaning"]
+  },
+  {
+    "option_a": "remember every moment of your life with perfect fidelity — every embarrassment, every loss, every version of yourself you have since outgrown — unable to forget anything",
+    "option_b": "lose all autobiographical memory every seven years, retaining skills and knowledge but beginning each cycle as a stranger to your own past",
+    "framing": "Whether personal identity requires narrative continuity or whether it can be renewed in cycles.",
     "flavors": ["Time", "Identity"]
   },
   {
-    "option_a": "remember every experience you have ever had with perfect clarity",
-    "option_b": "forget everything after seven years but live each moment with complete presence",
-    "framing": "Whether a self requires continuity of memory or fullness of attention.",
-    "flavors": ["Consciousness", "Identity", "Time"]
-  },
-  {
-    "option_a": "live in a just society you had no hand in creating",
-    "option_b": "build a society from scratch knowing it will be imperfect but yours",
-    "framing": "Whether justice is something inherited or something made — and which binds more deeply.",
-    "flavors": ["Power", "Morality"]
-  },
-  {
-    "option_a": "discover that free will is an illusion and all choices are fully determined",
-    "option_b": "have genuine free will but bear absolute responsibility for every consequence of every choice",
-    "framing": "Whether freedom is worth the weight of total accountability.",
-    "flavors": ["Knowledge", "Morality", "Consciousness"]
-  },
-  {
-    "option_a": "pursue a truth that destroys everything you currently love",
-    "option_b": "live inside a beautiful lie that sustains everything you value",
-    "framing": "Whether truth has intrinsic worth or only instrumental worth — and what that means for a life.",
+    "option_a": "have access to a complete and true account of every fact about the physical universe, but lose the ability to form new beliefs — you will know everything knowable, but you are done learning",
+    "option_b": "retain the full capacity for curiosity, wonder, and discovery, but know that every answer you find will open three new questions and that complete understanding is permanently out of reach",
+    "framing": "Whether knowledge is valuable as a destination or only as a process.",
     "flavors": ["Knowledge", "Meaning"]
   },
   {
-    "option_a": "be remembered forever for something you are not proud of",
-    "option_b": "be forgotten entirely after living a life you are deeply proud of",
-    "framing": "Whether legacy is for the living or the dead — and who its audience really is.",
-    "flavors": ["Meaning", "Identity", "Time"]
+    "option_a": "be the person who discovers the most important scientific truth of the next century — one that reshapes how humanity understands itself — but the discovery leads directly to a technology that causes enormous harm",
+    "option_b": "spend your life doing careful, unspectacular work that prevents a catastrophe no one will ever know was coming, and receive no recognition because the disaster never happened",
+    "framing": "Whether the moral weight of knowledge lies in its truth or its consequences.",
+    "flavors": ["Knowledge", "Morality"]
+  },
+  {
+    "option_a": "experience your life as it is, with full uncertainty about whether other people have genuine inner lives or are philosophical zombies — and this uncertainty can never be resolved",
+    "option_b": "know with certainty that every person you meet is fully conscious and has an inner life as rich as yours — but this knowledge comes with the permanent inability to ever feel alone",
+    "framing": "Whether the mystery of other minds is a burden or a necessary condition for genuine connection.",
+    "flavors": ["Consciousness", "Identity"]
+  },
+  {
+    "option_a": "live in a society that is perfectly just by every measurable standard — equal outcomes, no exploitation, no poverty — but one you had no hand in designing and cannot meaningfully change",
+    "option_b": "live in a genuinely imperfect society that you helped build, whose flaws you understand, and whose direction you can still influence through your choices",
+    "framing": "Whether justice is something to inhabit or something to pursue — and whether the pursuit is itself part of the good life.",
+    "flavors": ["Morality", "Meaning"]
   }
 ]
