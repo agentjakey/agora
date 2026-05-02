@@ -554,10 +554,27 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str)
 
 
 # Serve built frontend — must come after all API routes
-_dist = os.path.join(os.path.dirname(__file__), "frontend", "dist")
-if os.path.isdir(_dist):
-    app.mount("/assets", StaticFiles(directory=os.path.join(_dist, "assets")), name="assets")
+_dist = "frontend/dist"
+_assets = f"{_dist}/assets"
 
-    @app.get("/{full_path:path}", include_in_schema=False)
-    async def spa_fallback(full_path: str):
-        return FileResponse(os.path.join(_dist, "index.html"))
+if os.path.isdir(_assets):
+    app.mount("/assets", StaticFiles(directory=_assets), name="assets")
+
+
+@app.get("/", include_in_schema=False)
+async def serve_root():
+    index = f"{_dist}/index.html"
+    if os.path.exists(index):
+        return FileResponse(index)
+    return {"detail": "Frontend not built. Run: cd frontend && npm run build"}
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def catch_all(full_path: str):
+    file_path = f"{_dist}/{full_path}"
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    index = f"{_dist}/index.html"
+    if os.path.exists(index):
+        return FileResponse(index)
+    return {"detail": "Frontend not built. Run: cd frontend && npm run build"}

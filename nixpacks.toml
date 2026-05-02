@@ -1,0 +1,7 @@
+[phases.build]
+cmds = [
+  "cd frontend && npm install && npm run build && cd .."
+]
+
+[start]
+cmd = "uvicorn main:app --host 0.0.0.0 --port $PORT"
