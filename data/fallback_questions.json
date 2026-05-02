@@ -1,0 +1,52 @@
+[
+  {
+    "option_a": "spend your life building something that outlasts you but never see it finished",
+    "option_b": "complete something meaningful in your lifetime that disappears entirely the moment you die",
+    "domain": "Time & Existence"
+  },
+  {
+    "option_a": "be able to fully understand every person you meet but no one can understand you",
+    "option_b": "be completely understood by everyone, but lose the capacity to understand others",
+    "domain": "Consciousness & Identity"
+  },
+  {
+    "option_a": "live in a world where every moral question has a correct, knowable answer",
+    "option_b": "live in a world where morality is genuinely uncertain, but your choices are entirely your own",
+    "domain": "Morality & Justice"
+  },
+  {
+    "option_a": "have the power to end all suffering in the world but erase all joy along with it",
+    "option_b": "preserve the full spectrum of human experience knowing suffering will always exist",
+    "domain": "Morality & Justice"
+  },
+  {
+    "option_a": "know the exact moment and manner of your death",
+    "option_b": "never know, but be guaranteed it will be peaceful",
+    "domain": "Time & Existence"
+  },
+  {
+    "option_a": "remember every experience you have ever had with perfect clarity",
+    "option_b": "forget everything after seven years but live each moment with complete presence",
+    "domain": "Consciousness & Identity"
+  },
+  {
+    "option_a": "live in a just society you had no hand in creating",
+    "option_b": "build a society from scratch knowing it will be imperfect but yours",
+    "domain": "Power & Society"
+  },
+  {
+    "option_a": "discover that free will is an illusion and all choices are determined",
+    "option_b": "have genuine free will but bear full responsibility for every outcome of every choice",
+    "domain": "Knowledge & Perception"
+  },
+  {
+    "option_a": "pursue a truth that destroys everything you love",
+    "option_b": "live inside a beautiful lie that sustains everything you value",
+    "domain": "Knowledge & Perception"
+  },
+  {
+    "option_a": "be remembered forever for something you are not proud of",
+    "option_b": "be forgotten entirely after living a life you are deeply proud of",
+    "domain": "Meaning"
+  }
+]
