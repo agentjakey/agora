@@ -19,6 +19,11 @@ export function RoomProvider({ children }) {
   const [phase, setPhase] = useState('lobby')
   const [wsConnected, setWsConnected] = useState(false)
 
+  // Accumulated question history from reveal events
+  const [questionHistory, setQuestionHistory] = useState([])
+  // Session start time — set on first question_ready, never overwritten
+  const sessionStartRef = useRef(null)
+
   const wsRef = useRef(null)
   const reconnectTimer = useRef(null)
   const reconnectAttempts = useRef(0)
@@ -76,6 +81,10 @@ export function RoomProvider({ children }) {
         break
 
       case 'question_ready':
+        // Record session start on the very first question
+        if (!sessionStartRef.current) {
+          sessionStartRef.current = Date.now()
+        }
         setRoomState(prev => prev ? {
           ...prev,
           current_question: msg.question,
@@ -92,6 +101,15 @@ export function RoomProvider({ children }) {
         break
 
       case 'reveal':
+        // Accumulate question history from every reveal
+        if (msg.question && msg.final_votes) {
+          setQuestionHistory(prev => {
+            const entry = { ...msg.question, final_votes: msg.final_votes }
+            // Avoid duplicates if reveal fires twice for same question
+            const alreadyExists = prev.some(q => q.id === entry.id)
+            return alreadyExists ? prev : [...prev, entry]
+          })
+        }
         setRoomState(prev => prev ? {
           ...prev,
           phase: 'reveal',
@@ -126,6 +144,12 @@ export function RoomProvider({ children }) {
     localStorage.setItem('agora_user_name', name)
   }, [])
 
+  // Reset session state when leaving a room
+  const resetSession = useCallback(() => {
+    setQuestionHistory([])
+    sessionStartRef.current = null
+  }, [])
+
   useEffect(() => () => clearTimeout(reconnectTimer.current), [])
 
   return (
@@ -140,6 +164,9 @@ export function RoomProvider({ children }) {
       wsConnected,
       connectWs,
       disconnectWs,
+      questionHistory,
+      sessionStartRef,
+      resetSession,
     }}>
       {children}
     </RoomContext.Provider>

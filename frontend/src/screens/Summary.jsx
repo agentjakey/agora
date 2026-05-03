@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { useRoom } from '../context/RoomContext.jsx'
 import { useNavigate } from 'react-router-dom'
 import './Summary.css'
@@ -21,15 +20,31 @@ function truncate(str, n) {
   return str.length > n ? str.slice(0, n).trimEnd() + '…' : str
 }
 
-export default function Summary() {
-  const { roomState, setPhase, setRoomCode, setIsHost, setHostId, setRoomState } = useRoom()
-  const navigate = useNavigate()
-  const startRef = useRef(roomState?._sessionStart || Date.now())
+function formatDuration(ms) {
+  const totalMinutes = Math.max(1, Math.round(ms / 60000))
+  if (totalMinutes < 60) {
+    return `${totalMinutes} ${totalMinutes === 1 ? 'minute' : 'minutes'}`
+  }
+  const hours = Math.floor(totalMinutes / 60)
+  const mins = totalMinutes % 60
+  if (mins === 0) return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
+  return `${hours}h ${mins}m`
+}
 
-  const history = roomState?.question_history || []
+export default function Summary() {
+  const {
+    questionHistory,
+    sessionStartRef,
+    setPhase, setRoomCode, setIsHost, setHostId, setRoomState, resetSession,
+  } = useRoom()
+  const navigate = useNavigate()
+
+  const history = questionHistory
   const total = history.length
-  const durationMs = Date.now() - startRef.current
-  const minutes = Math.max(1, Math.round(durationMs / 60000))
+
+  const sessionStart = sessionStartRef.current
+  const durationMs = sessionStart ? Date.now() - sessionStart : 0
+  const durationLabel = formatDuration(durationMs)
 
   // Build philosophical profile from flavor tags
   const flavorVotes = {}
@@ -58,7 +73,7 @@ export default function Summary() {
   function buildCopyText() {
     const lines = [
       'AGORA — Session Chronicle',
-      `${total} question${total !== 1 ? 's' : ''} · ${minutes} minute${minutes !== 1 ? 's' : ''} together`,
+      `${total} question${total !== 1 ? 's' : ''} · ${durationLabel} together`,
       '',
     ]
     history.forEach((q, i) => {
@@ -81,6 +96,7 @@ export default function Summary() {
   }
 
   function handleNewGathering() {
+    resetSession()
     setPhase('lobby')
     setRoomCode(null)
     setIsHost(false)
@@ -94,13 +110,13 @@ export default function Summary() {
       <div className="summary-inner">
         <h1 className="summary-heading">The Gathering Has Closed</h1>
         <p className="summary-sub muted">
-          {total} {total === 1 ? 'question' : 'questions'} debated &middot; {minutes} {minutes === 1 ? 'minute' : 'minutes'} together
+          {total} {total === 1 ? 'question' : 'questions'} debated &middot; {durationLabel} together
         </p>
 
         <div className="divider gold" />
 
         {/* Chronicle of Questions */}
-        {history.length > 0 && (
+        {history.length > 0 ? (
           <section className="summary-chronicle" aria-label="Chronicle of Questions">
             <h2 className="summary-section-title">Chronicle of Questions</h2>
             <div className="chronicle-list">
@@ -133,6 +149,10 @@ export default function Summary() {
               })}
             </div>
           </section>
+        ) : (
+          <p className="muted" style={{ fontStyle: 'italic', fontSize: 16, textAlign: 'center' }}>
+            No questions were recorded for this session.
+          </p>
         )}
 
         {/* Philosophical Profile */}
