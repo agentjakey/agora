@@ -2,15 +2,17 @@ import { useState, useEffect, useRef } from 'react'
 import { useRoom } from '../context/RoomContext.jsx'
 import './Question.css'
 
-const TIMER_SECONDS = 45
+const TIMER_SECONDS = 90
+const COLOR_SHIFT_BEFORE = 10
 
 export default function Question() {
-  const { roomCode, userId, roomState } = useRoom()
+  const { roomCode, userId, isHost, hostId, roomState } = useRoom()
   const [voted, setVoted] = useState(null)
   const [hovered, setHovered] = useState(null)
   const [barWidth, setBarWidth] = useState(100)
   const [barDuration, setBarDuration] = useState(0)
   const [barColor, setBarColor] = useState('var(--accent)')
+  const [skipping, setSkipping] = useState(false)
 
   const colorTimerRef = useRef(null)
   const startTimerRef = useRef(null)
@@ -25,6 +27,7 @@ export default function Question() {
 
     setVoted(null)
     setHovered(null)
+    setSkipping(false)
 
     clearTimeout(colorTimerRef.current)
     clearTimeout(startTimerRef.current)
@@ -37,7 +40,7 @@ export default function Question() {
     // Snap bar to 100% with no transition
     setBarWidth(100)
     setBarDuration(0)
-    setBarColor(remaining <= 10 ? '#b8580b' : 'var(--accent)')
+    setBarColor(remaining <= COLOR_SHIFT_BEFORE ? '#b8580b' : 'var(--accent)')
 
     // After a frame, start the transition
     startTimerRef.current = setTimeout(() => {
@@ -46,10 +49,10 @@ export default function Question() {
     }, 50)
 
     // Color change at 10s remaining
-    if (remaining > 10) {
+    if (remaining > COLOR_SHIFT_BEFORE) {
       colorTimerRef.current = setTimeout(() => {
         setBarColor('#b8580b')
-      }, (remaining - 10) * 1000)
+      }, (remaining - COLOR_SHIFT_BEFORE) * 1000)
     }
 
     return () => {
@@ -69,6 +72,20 @@ export default function Question() {
       })
     } catch {
       setVoted(null)
+    }
+  }
+
+  async function handleSkip() {
+    if (skipping || !hostId) return
+    setSkipping(true)
+    try {
+      await fetch(`/room/${roomCode}/skip`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ host_id: hostId }),
+      })
+    } catch {
+      setSkipping(false)
     }
   }
 
@@ -150,6 +167,17 @@ export default function Question() {
         <p className="question-tally muted">
           {voteUpdate.total} of {connectedCount} {connectedCount === 1 ? 'person has' : 'have'} deliberated
         </p>
+
+        {isHost && (
+          <button
+            className="skip-btn"
+            onClick={handleSkip}
+            disabled={skipping}
+            aria-label="Skip to results immediately"
+          >
+            {skipping ? 'Revealing...' : 'Skip to Results'}
+          </button>
+        )}
       </div>
     </div>
   )

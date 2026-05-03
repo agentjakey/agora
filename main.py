@@ -26,7 +26,7 @@ CONSONANTS = "BCDFGHJKLMNPQRSTVWXYZ"
 RATE_LIMIT_SECONDS = 20
 DEDUP_HISTORY = 20
 SIMILARITY_THRESHOLD = 0.80
-AUTO_REVEAL_SECONDS = 45
+AUTO_REVEAL_SECONDS = 90
 
 rooms: dict = {}
 
@@ -474,6 +474,42 @@ async def end_session(room_code: str, body: EndBody):
     room["phase"] = "ended"
     await broadcast(room, {"event": "session_ended"})
     return {"status": "ended"}
+
+
+class SkipBody(BaseModel):
+    host_id: str
+
+
+@app.post("/room/{room_code}/skip")
+async def skip_to_reveal(room_code: str, body: SkipBody):
+    room_code = room_code.upper()
+    if room_code not in rooms:
+        raise HTTPException(status_code=404, detail="Room not found")
+    room = rooms[room_code]
+    if room["host_id"] != body.host_id:
+        raise HTTPException(status_code=403, detail="Only the host can skip")
+    if room["phase"] != "question":
+        return {"status": "not_in_question_phase"}
+
+    _cancel_timer(room)
+    room["phase"] = "reveal"
+
+    vote_counts = {"A": 0, "B": 0}
+    for v in room["votes"].values():
+        vote_counts[v] += 1
+
+    if room["current_question"]:
+        room["question_history"].append({
+            **room["current_question"],
+            "final_votes": vote_counts,
+        })
+
+    await broadcast(room, {
+        "event": "reveal",
+        "final_votes": vote_counts,
+        "question": room["current_question"],
+    })
+    return {"status": "skipped"}
 
 
 @app.get("/room/{room_code}/preview_question")

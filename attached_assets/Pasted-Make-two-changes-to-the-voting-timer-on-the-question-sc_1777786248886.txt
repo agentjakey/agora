@@ -1,0 +1,44 @@
+Make two changes to the voting timer on the question screen:
+
+1. INCREASE TIMER DURATION FROM 45 TO 90 SECONDS:
+  - In main.py: change the asyncio auto-reveal timer from 45 to 90 seconds
+  - In the frontend Question.jsx: change the CSS timer bar transition
+    duration from 45s to 90s
+  - Update the "last 10 seconds" color shift setTimeout to fire at
+    (90 - 10) = 80 seconds after question load
+  - Update the timer sync calculation:
+    set CSS transition duration to (90000 - elapsed) / 1000 seconds
+    where elapsed = Date.now() - server_timestamp
+
+2. ADD A "SKIP VOTE" BUTTON FOR THE HOST ONLY:
+  On the question screen, if isHost === true, show a small button
+  beneath the vote progress circles:
+    Text: "SKIP TO RESULTS" in Cinzel, uppercase, letter-spacing 0.15em
+    Style: border 1px solid var(--border), --text-secondary color,
+           small font size — de-emphasized, should not dominate the screen
+    Position: centered, below the "X of Y have deliberated" counter
+
+  On click:
+    - Call POST /room/{room_code}/skip with { "host_id": str }
+    - This endpoint triggers an immediate reveal with current votes as-is
+      (same behavior as the auto-reveal timer firing early)
+    - Cancel the running asyncio timer for this room
+    - Broadcast the reveal event to all clients immediately
+
+  Add POST /room/{room_code}/skip to main.py:
+    - Validate host_id
+    - Cancel room timer task if running
+    - Call the same reveal broadcast function used by the auto-timer
+    - Set phase to "reveal"
+
+  Guests do not see the skip button. They see no indication that the
+  host skipped — the reveal just arrives, same as normal.
+
+Rebuild after changes:
+  cd frontend && npm run build && cd ..
+  git add frontend/dist/ frontend/src/ main.py
+  git commit -m "feat: 90s timer, host skip button"
+  git push origin main
+
+Confirm: timer bar now takes 90 seconds to deplete. Host sees skip button.
+Clicking skip immediately triggers the reveal for all clients.
