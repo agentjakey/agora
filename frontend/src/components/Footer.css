@@ -19,6 +19,25 @@
   font-style: italic;
 }
 
+.footer-support {
+  pointer-events: all;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.footer-support:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
 .footer-right {
   pointer-events: all;
   color: var(--text-secondary);
@@ -30,4 +49,18 @@
 
 .footer-right:hover {
   color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .site-footer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
+    padding: 8px 16px 10px;
+  }
+
+  .footer-left {
+    width: 100%;
+    text-align: center;
+  }
 }
