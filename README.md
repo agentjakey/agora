@@ -158,4 +158,14 @@ agora/
 **Jacob Ortiz** - AI Researcher · UCSD Physics · Berkeley MIDS (Fall 2026)  
 [github.com/agentjakey](https://github.com/agentjakey)
 
-MIT License · *Cold start after inactivity: give it 20 seconds on the first load.*
+---
+
+## Support
+
+If Agora made for a better dinner table, you can buy me a coffee.
+[ko-fi.com/agentjakey](https://ko-fi.com/agentjakey)
+
+---
+
+## License
+MIT — see [LICENSE](LICENSE)
