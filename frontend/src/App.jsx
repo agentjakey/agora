@@ -16,7 +16,8 @@ export default function App() {
         setDiscordAuth(auth)
         setReady(true)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Discord SDK error:", err)
         setReady(true)
       })
   }, [])
