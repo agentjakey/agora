@@ -3,9 +3,5 @@ uvicorn[standard]
 anthropic
 python-dotenv
 websockets
-anthropic
-fastapi
 pydantic
-python-dotenv
-uvicorn[standard]
-websockets
+httpx

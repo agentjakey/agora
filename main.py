@@ -6,6 +6,7 @@ import logging
 import time
 import asyncio
 import difflib
+import httpx
 from typing import Optional
 from contextlib import asynccontextmanager
 
@@ -283,7 +284,13 @@ app = FastAPI(title="Agora", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://agora-production-695a.up.railway.app",
+        "https://*.discordsays.com",
+        "http://localhost:5173",
+        "http://localhost:8000",
+    ],
+    allow_origin_regex=r"https://.*\.discordsays\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -587,6 +594,39 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str)
         if user_id in room["users"]:
             room["users"][user_id]["connected"] = False
         await broadcast(room, {"event": "user_left", "user_id": user_id})
+
+
+class TokenRequest(BaseModel):
+    code: str
+
+
+@app.post("/api/token")
+async def exchange_token(request: TokenRequest):
+    """Exchange Discord OAuth2 authorization code for access token."""
+    client_id = os.environ.get("DISCORD_CLIENT_ID", "")
+    client_secret = os.environ.get("DISCORD_CLIENT_SECRET", "")
+
+    if not client_id or not client_secret:
+        # Not configured for Discord — return gracefully
+        return {"access_token": None}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://discord.com/api/oauth2/token",
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "grant_type": "authorization_code",
+                "code": request.code,
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+    if response.status_code != 200:
+        return {"access_token": None, "error": "Token exchange failed"}
+
+    data = response.json()
+    return {"access_token": data.get("access_token")}
 
 
 # Serve built frontend — must come after all API routes
