@@ -1,7 +1,5 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
-console.log("discordSdk.js loaded, hostname:", window.location.hostname)
-
 // Only initialize if running inside Discord's iframe
 const isDiscord = window.location.hostname.endsWith(".discordsays.com");
 
