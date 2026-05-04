@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 import anthropic
 from dotenv import load_dotenv
@@ -633,6 +633,205 @@ async def exchange_token(request: TokenRequest):
 
     data = response.json()
     return {"access_token": data.get("access_token")}
+
+
+_PRIVACY_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agora Privacy Policy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0a0a0a;
+      color: #c8b97a;
+      font-family: 'Crimson Text', Georgia, serif;
+      font-size: 1.15rem;
+      line-height: 1.75;
+      padding: 3rem 1.5rem 5rem;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d4af37;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+    }
+    .updated {
+      font-size: 0.95rem;
+      color: #6b5f3a;
+      margin-bottom: 3rem;
+      font-style: italic;
+    }
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #d4af37;
+      letter-spacing: 0.03em;
+      margin-top: 2.2rem;
+      margin-bottom: 0.6rem;
+    }
+    p {
+      color: #c8b97a;
+    }
+    a {
+      color: #d4af37;
+      text-decoration: none;
+      border-bottom: 1px solid #4a3f1f;
+    }
+    a:hover {
+      border-bottom-color: #d4af37;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1e1a10;
+      margin: 3rem 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Agora Privacy Policy</h1>
+    <p class="updated">Last updated: May 4, 2026</p>
+
+    <h2>1. Overview</h2>
+    <p>Agora is a multiplayer philosophical debate game. We are committed to protecting your privacy.</p>
+
+    <h2>2. Data We Collect</h2>
+    <p>When you use Agora via Discord, we temporarily receive your Discord username and user ID through the Discord OAuth2 flow. We do not store this data. All game state (rooms, votes, questions) is held in server memory and is permanently deleted when the session ends or the server restarts. We do not use cookies, analytics, or tracking of any kind.</p>
+
+    <h2>3. Data We Do Not Collect</h2>
+    <p>We do not collect email addresses, passwords, payment information, location data, or any personally identifiable information beyond what Discord provides during authentication.</p>
+
+    <h2>4. Third-Party Services</h2>
+    <p>Agora uses the Anthropic API to generate philosophical questions. No user data is sent to Anthropic &mdash; only the request for a question. Agora uses Discord's Embedded App SDK for in-voice-channel functionality, subject to Discord's own Privacy Policy.</p>
+
+    <h2>5. Data Retention</h2>
+    <p>No user data is retained. All session data is ephemeral and exists only in memory during an active game session.</p>
+
+    <h2>6. Your Rights</h2>
+    <p>Since we store no personal data, there is nothing to request deletion of. If you have questions, contact us at: <a href="mailto:jakemyguy@gmail.com">jakemyguy@gmail.com</a></p>
+
+    <h2>7. Changes</h2>
+    <p>We may update this policy. The date at the top reflects the latest revision.</p>
+
+    <hr />
+  </div>
+</body>
+</html>"""
+
+
+@app.get("/privacy", include_in_schema=False)
+async def privacy_policy():
+    return HTMLResponse(content=_PRIVACY_HTML)
+
+
+_TERMS_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agora Terms of Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0a0a0a;
+      color: #c8b97a;
+      font-family: 'Crimson Text', Georgia, serif;
+      font-size: 1.15rem;
+      line-height: 1.75;
+      padding: 3rem 1.5rem 5rem;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d4af37;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+    }
+    .updated {
+      font-size: 0.95rem;
+      color: #6b5f3a;
+      margin-bottom: 3rem;
+      font-style: italic;
+    }
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #d4af37;
+      letter-spacing: 0.03em;
+      margin-top: 2.2rem;
+      margin-bottom: 0.6rem;
+    }
+    p {
+      color: #c8b97a;
+    }
+    a {
+      color: #d4af37;
+      text-decoration: none;
+      border-bottom: 1px solid #4a3f1f;
+    }
+    a:hover {
+      border-bottom-color: #d4af37;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1e1a10;
+      margin: 3rem 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Agora Terms of Service</h1>
+    <p class="updated">Last updated: May 4, 2026</p>
+
+    <h2>1. Acceptance</h2>
+    <p>By using Agora, you agree to these terms and Discord's Terms of Service at <a href="https://discord.com/terms">discord.com/terms</a>.</p>
+
+    <h2>2. Use of Service</h2>
+    <p>Agora is a game for entertainment and discussion. You must be at least 13 years old to use Discord and therefore Agora. You agree not to use Agora to harass, abuse, or harm other users.</p>
+
+    <h2>3. Content</h2>
+    <p>Questions are AI-generated for philosophical discussion. We are not responsible for how users interpret or respond to questions during gameplay.</p>
+
+    <h2>4. Availability</h2>
+    <p>Agora is provided as-is. We may change, pause, or discontinue the service at any time.</p>
+
+    <h2>5. Limitation of Liability</h2>
+    <p>Agora is a free service. We are not liable for any damages arising from use of the service.</p>
+
+    <h2>6. Contact &amp; Reporting</h2>
+    <p>To report issues or violations, contact: <a href="mailto:jakemyguy@gmail.com">jakemyguy@gmail.com</a></p>
+
+    <hr />
+  </div>
+</body>
+</html>"""
+
+
+@app.get("/terms", include_in_schema=False)
+async def terms_of_service():
+    return HTMLResponse(content=_TERMS_HTML)
 
 
 # Serve built frontend — must come after all API routes
