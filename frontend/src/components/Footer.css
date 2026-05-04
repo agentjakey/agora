@@ -38,6 +38,12 @@
   border-color: var(--accent);
 }
 
+.footer-links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .footer-right {
   pointer-events: all;
   color: var(--text-secondary);

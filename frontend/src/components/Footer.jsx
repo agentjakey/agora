@@ -12,15 +12,19 @@ export default function Footer() {
       >
         Support This Project
       </a>
-      <a
-        className="footer-right"
-        href="https://github.com/agentjakey/agora"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="View source on GitHub"
-      >
-        Source
-      </a>
+      <div className="footer-links">
+        <a className="footer-right" href="/privacy">Privacy</a>
+        <a className="footer-right" href="/terms">Terms</a>
+        <a
+          className="footer-right"
+          href="https://github.com/agentjakey/agora"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View source on GitHub"
+        >
+          Source
+        </a>
+      </div>
     </footer>
   )
 }
