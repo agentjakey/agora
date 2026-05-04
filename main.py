@@ -596,6 +596,12 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str)
         await broadcast(room, {"event": "user_left", "user_id": user_id})
 
 
+@app.get("/api/token", include_in_schema=False)
+async def token_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/")
+
+
 class TokenRequest(BaseModel):
     code: str
 
