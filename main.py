@@ -178,10 +178,15 @@ def _is_duplicate(question: dict, question_texts: list[str]) -> bool:
 
 
 def _record_question(room: dict, question: dict):
-    text = question["option_a"] + " " + question["option_b"]
-    room["question_texts"].append(text)
+    """Record for dedup (existing) and for Claude context injection (new)."""
+    combined = question["option_a"] + " " + question["option_b"]
+    room["question_texts"].append(combined)
     if len(room["question_texts"]) > DEDUP_HISTORY:
         room["question_texts"].pop(0)
+    room["question_history"].append({
+        "framing": question.get("framing", ""),
+        "flavors": question.get("flavors", []),
+    })
 
 
 def _parse_claude_response(raw: str) -> dict:
