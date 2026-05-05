@@ -112,6 +112,9 @@ Respond with ONLY a JSON object. No prose, no explanation, no markdown code fenc
   "flavors": ["1-3 tags chosen only from: Consciousness, Identity, Knowledge, Morality, Power, Time, Meaning, Science"]
 }"""
 
+HAIKU_MODEL = "claude-haiku-4-5-20251001"
+SONNET_MODEL = "claude-sonnet-4-5"
+
 
 def generate_room_code() -> str:
     while True:
@@ -192,22 +195,54 @@ def _parse_claude_response(raw: str) -> dict:
     return json.loads(raw)
 
 
-async def _call_claude(flavors: list[str]) -> dict | None:
+async def _call_claude(flavors: list[str], question_history: list[dict], question_count: int) -> dict | None:
+    """
+    Generate a question via Claude.
+    - Haiku for Q1-10, Sonnet for Q11+ (higher ceiling for long sessions)
+    - temperature=1.0 for maximum conceptual and lexical diversity
+    - Injects last 8 question framings so Claude avoids covered territory
+    - Detects overused flavor domains and deprioritizes them
+    """
+    from collections import Counter
+
+    model = SONNET_MODEL if question_count >= 10 else HAIKU_MODEL
     client = anthropic.AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    user_message = "Generate a philosophical Would You Rather question."
     if flavors:
-        user_message = (
-            f"Generate a philosophical Would You Rather question.\n"
-            f"This group has indicated interest in: {', '.join(flavors)}.\n"
-            f"Prioritize questions that engage these themes, but do not sacrifice quality for specificity."
-        )
+        flavor_str = ", ".join(flavors)
+        flavor_instruction = f"Prioritize these philosophical themes without sacrificing question quality: {flavor_str}."
+    else:
+        flavor_instruction = "Explore any philosophical territory."
+
+    flavor_counts = Counter()
+    for q in question_history:
+        for f in q.get("flavors", []):
+            flavor_counts[f] += 1
+    overused = [f for f, c in flavor_counts.most_common(2) if c >= 3]
+    overuse_str = f"\nDeprioritize these themes — they have dominated this session already: {', '.join(overused)}." if overused else ""
+
+    recent = question_history[-8:]
+    if recent:
+        framing_lines = "\n".join(f"  - {q['framing']}" for q in recent if q.get("framing"))
+        history_block = f"""
+The following questions have already been asked this session. Generate something conceptually distinct — different philosophical territory, different structure, different core tension:
+{framing_lines}
+"""
+    else:
+        history_block = ""
+
+    user_message = f"""Generate a philosophical Would You Rather question.
+
+{flavor_instruction}{overuse_str}
+{history_block}
+Return only the JSON object. No prose, no markdown, no explanation."""
 
     for attempt in range(2):
         try:
             response = await client.messages.create(
-                model="claude-haiku-4-5-20251001",
+                model=model,
                 max_tokens=600,
+                temperature=1.0,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_message}],
             )
@@ -221,20 +256,16 @@ async def _call_claude(flavors: list[str]) -> dict | None:
             }
         except json.JSONDecodeError:
             if attempt == 0:
-                logger.warning("Malformed JSON from Claude, retrying once...")
                 continue
-            logger.error("Malformed JSON on both attempts, using fallback.")
             break
-        except Exception as e:
-            logger.error(f"Claude API error: {e}")
+        except Exception:
             break
-
     return None
 
 
-async def generate_question(flavors: list[str], question_texts: list[str]) -> dict:
+async def generate_question(flavors: list[str], question_texts: list[str], question_history: list[dict], question_count: int) -> dict:
     for attempt in range(3):
-        q = await _call_claude(flavors)
+        q = await _call_claude(flavors, question_history, question_count)
         if q is None:
             break
         if not _is_duplicate(q, question_texts):
@@ -420,7 +451,7 @@ async def start_room(room_code: str, body: StartRoomBody):
     room["votes"] = {}
 
     question = room.pop("preview_question", None) or await generate_question(
-        room["flavors"], room["question_texts"]
+        room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"])
     )
     _record_question(room, question)
     room["current_question"] = question
@@ -497,7 +528,7 @@ async def next_question(room_code: str, body: NextBody):
     room["phase"] = "question"
 
     question = room.pop("preview_question", None) or await generate_question(
-        room["flavors"], room["question_texts"]
+        room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"])
     )
     _record_question(room, question)
     room["current_question"] = question
@@ -565,7 +596,7 @@ async def preview_question(room_code: str, host_id: str):
     room = rooms[room_code]
     if room["host_id"] != host_id:
         raise HTTPException(status_code=403, detail="Only the host can preview questions")
-    question = await generate_question(room["flavors"], room["question_texts"])
+    question = await generate_question(room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"]))
     room["preview_question"] = question
     return {"question": question}
 
