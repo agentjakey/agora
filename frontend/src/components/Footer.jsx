@@ -24,6 +24,15 @@ export default function Footer() {
         >
           Source
         </a>
+        &middot;
+        <a
+          className="footer-right"
+          href="https://discord.com/oauth2/authorize?client_id=1500962399304552608"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Discord
+        </a>
       </div>
     </footer>
   )
