@@ -2,6 +2,7 @@
 ### *multiplayer philosophical would you rather - for people who ruin dinner*
 
 **[Play Now →](https://agora-production-695a.up.railway.app/)** Built May 2, 2026 · Replit Buildathon
+**Now on [Discord](https://discord.com/oauth2/authorize?client_id=1500962399304552608) as a Verified Activity, Play with your friends today!**
 
 ---
 
