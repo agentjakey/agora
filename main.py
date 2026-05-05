@@ -263,16 +263,20 @@ Return only the JSON object. No prose, no markdown, no explanation."""
     return None
 
 
-async def generate_question(flavors: list[str], question_texts: list[str], question_history: list[dict], question_count: int) -> dict:
+async def generate_question(flavors: list[str], question_texts: list[str], question_history: list[dict]) -> dict:
+    """
+    Outer retry loop. Up to 3 attempts to get a non-duplicate question.
+    question_history: list of {"framing": str, "flavors": list[str]} for context injection.
+    """
+    question_count = len(question_history)
+
     for attempt in range(3):
         q = await _call_claude(flavors, question_history, question_count)
         if q is None:
             break
         if not _is_duplicate(q, question_texts):
             return q
-        logger.info(f"Duplicate detected on attempt {attempt + 1}, regenerating...")
         if attempt == 2:
-            logger.info("Max dedup retries reached, accepting anyway.")
             return q
 
     fallback = random.choice(FALLBACK_QUESTIONS)
@@ -280,7 +284,7 @@ async def generate_question(flavors: list[str], question_texts: list[str], quest
         "id": str(uuid.uuid4()),
         "option_a": fallback["option_a"],
         "option_b": fallback["option_b"],
-        "framing": fallback.get("framing", ""),
+        "framing": fallback["framing"],
         "flavors": fallback.get("flavors", []),
     }
 
@@ -451,7 +455,7 @@ async def start_room(room_code: str, body: StartRoomBody):
     room["votes"] = {}
 
     question = room.pop("preview_question", None) or await generate_question(
-        room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"])
+        room["flavors"], room["question_texts"], room["question_history"]
     )
     _record_question(room, question)
     room["current_question"] = question
@@ -528,7 +532,7 @@ async def next_question(room_code: str, body: NextBody):
     room["phase"] = "question"
 
     question = room.pop("preview_question", None) or await generate_question(
-        room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"])
+        room["flavors"], room["question_texts"], room["question_history"]
     )
     _record_question(room, question)
     room["current_question"] = question
@@ -596,7 +600,7 @@ async def preview_question(room_code: str, host_id: str):
     room = rooms[room_code]
     if room["host_id"] != host_id:
         raise HTTPException(status_code=403, detail="Only the host can preview questions")
-    question = await generate_question(room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"]))
+    question = await generate_question(room["flavors"], room["question_texts"], room["question_history"])
     room["preview_question"] = question
     return {"question": question}
 
