@@ -534,7 +534,7 @@ async def next_question(room_code: str, body: NextBody):
     room["phase"] = "question"
 
     room.pop("preview_question", None)
-    question = await generate_question(room["flavors"], room["question_texts"], room["question_history"], len(room["question_history"]))
+    question = await generate_question(room["flavors"], room["question_texts"], room["question_history"])
     _record_question(room, question)
     room["current_question"] = question
 
