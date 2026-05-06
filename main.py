@@ -282,7 +282,14 @@ async def generate_question(flavors: list[str], question_texts: list[str], quest
         if not _is_duplicate(q, question_texts):
             return q
         if attempt == 2:
-            return q
+            fallback = random.choice(FALLBACK_QUESTIONS)
+            return {
+                "id": str(uuid.uuid4()),
+                "option_a": fallback["option_a"],
+                "option_b": fallback["option_b"],
+                "framing": fallback["framing"],
+                "flavors": fallback.get("flavors", []),
+            }
 
     fallback = random.choice(FALLBACK_QUESTIONS)
     return {
@@ -330,11 +337,6 @@ async def _auto_reveal(room_code: str, question_id: str):
 
     room["phase"] = "reveal"
     room["timer_task"] = None
-    if room["current_question"]:
-        room["question_history"].append({
-            **room["current_question"],
-            "final_votes": vote_counts,
-        })
 
     logger.info(f"Auto-reveal fired for room {room_code} question {question_id}")
     await broadcast(room, {
@@ -502,11 +504,6 @@ async def vote(room_code: str, body: VoteBody):
     if total_connected > 0 and len(voted_ids) >= total_connected:
         _cancel_timer(room)
         room["phase"] = "reveal"
-        if room["current_question"]:
-            room["question_history"].append({
-                **room["current_question"],
-                "final_votes": vote_counts,
-            })
         await broadcast(room, {
             "event": "reveal",
             "final_votes": vote_counts,
@@ -581,12 +578,6 @@ async def skip_to_reveal(room_code: str, body: SkipBody):
     vote_counts = {"A": 0, "B": 0}
     for v in room["votes"].values():
         vote_counts[v] += 1
-
-    if room["current_question"]:
-        room["question_history"].append({
-            **room["current_question"],
-            "final_votes": vote_counts,
-        })
 
     await broadcast(room, {
         "event": "reveal",
